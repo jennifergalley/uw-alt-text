@@ -15,6 +15,8 @@ Office.onReady((info) => {
     document.getElementById("sideload-msg").style.display = "none";
     document.getElementById("app-body").style.display = "flex";
     document.getElementById("run").onclick = run;
+    document.getElementById("action").onclick = action;
+    document.getElementById("hide").onclick = hide;
   }
 });
 
@@ -27,3 +29,8 @@ export async function run() {
   await Office.context.document.setSelectedDataAsync(" ", options);
   await Office.context.document.setSelectedDataAsync("Hello World!", options);
 }
+
+function hide2() {
+  Office.addin.hide();
+}
+
