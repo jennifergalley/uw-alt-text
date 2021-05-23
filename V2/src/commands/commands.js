@@ -9,40 +9,27 @@ Office.onReady(() => {
   // If needed, Office.js is ready to be called
 });
 
-/**
- * Shows a notification when the add-in command is executed.
- * @param event {Office.AddinCommands.Event}
- */
-function action(event) {
-  const message = {
-    type: Office.MailboxEnums.ItemNotificationMessageType.InformationalMessage,
-    message: "Performed action.",
-    icon: "Icon.80x80",
-    persistent: true,
-  };
-
-  // Show a notification message
-  Office.context.mailbox.item.notificationMessages.replaceAsync("action", message);
-
-  // Be sure to indicate when the add-in command function is complete
-  event.completed();
-}
-
-// var _count=0;
+var _count=0;
 
 // /**
 //  * Does a thing.
 //  * @param event {Office.AddinCommands.Event}
 //  */
-// function action(event) {
-//   // Your code goes here.
-//   _count++;
-//   Office.addin.showAsTaskpane();
-//   document.getElementById("run").textContent="Go"+_count;
+function action(event) {
+  // Your code goes here.
+  _count++;
+  // Office.addin.hide();
 
-//   // Be sure to indicate when the add-in command function is complete.
-//   event.completed();
-// }
+  // Office.addin.showAsTaskpane();
+  document.getElementById("run").textContent="Go"+_count;
+
+  // Be sure to indicate when the add-in command function is complete.
+  // event.completed();
+}
+
+async function hide() {
+  await Office.addin.hide();
+}
 
 function getGlobal() {
   return typeof self !== "undefined"
@@ -58,3 +45,4 @@ const g = getGlobal();
 
 // the add-in command functions need to be available in global scope
 g.action = action;
+g.hide = hide;
