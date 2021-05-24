@@ -71,28 +71,28 @@ class Engine {
 let peopleTopic = new Topic("Image with people", 
     [
         new Rule(
-            "Is the people relevant to the content at hand?",
+            "Is the people relevant to the content?",
             {
-                "no": { rule: END_RULE, suggestion: "Do not include this information in the alt text." },
+                "no": { rule: END_RULE, suggestion: "Do not include it in the alt text." },
                 "yes": {
                     suggestion: "Begin stating there is people in the image.",
                     rule: new Rule(
                         "Is the number of people relevant to the context?",
                         {
-                            "no": { rule: END_RULE, suggestion: "Do not include this information in the alt text." },
+                            "no": { rule: END_RULE, suggestion: "Do not include it in the alt text." },
                             "yes": {
-                                suggestion: "Describe the total number of people in the image, with emphasis on the people who are relevant to the context.",
+                                suggestion: "Describe the total number of people.",
                                 rule: new Rule(
-                                    "Is the gender/race identity relevant to the message you are trying to convey?",
+                                    "Is the gender/race identity relevant to the content?",
                                     {
                                         "no": { rule: END_RULE, suggestion: "Do not disclose the identitiy of the people in the image." },
                                         "yes": {
                                             suggestion: "Add the general (not indidividual) gender/race aspects which are relevant to the context",
                                             rule: new Rule(
-                                                "Do you have an explicit acknowledgement of the people in the picture to describe their identity?",
+                                                "Do you permission to describe the people's identity?",
                                                 {
-                                                    "no": { rule: END_RULE, suggestion: "Do not disclose the identitiy of the people in the image." },
-                                                    "yes": { rule: END_RULE, suggestion: "Describe accurately the identity of each person from a specific order, say left to right." }
+                                                    "no": { rule: END_RULE, suggestion: "Do not disclose the identities of the people." },
+                                                    "yes": { rule: END_RULE, suggestion: "Describe the identity of each person in a specific order." }
                                                 }
                                             )
                                         }
@@ -125,27 +125,50 @@ let suggestions = [];
 
 function onTopicChosen(event) {
     let topic = TOPICS[event.target.value];
-    engine = new Engine(topic);
-    suggestions = [];
-    let q = engine.nextQuestion();
-    updateQuestionUI(q);
+    if (topic) {
+        document.getElementById("current-question-next-button").disabled = false;
+        engine = new Engine(topic);
+        suggestions = [];
+        let q = engine.nextQuestion();
+        updateQuestionUI(q);
+    } else {
+        document.getElementById("current-question-div").style.display = "none";
+        document.getElementById("current-question-next-button").disabled = true;
+    }
 }
 
 function nextQuestion() {
     let dropdown = document.getElementById("current-question-dropdown");
     let answer = dropdown.options[dropdown.selectedIndex].value;
+    let question = engine.nextQuestion().question;
     let ans = engine.receiveAnswer(answer);
-    suggestions.push(ans.suggestion);
+    suggestions.push([question, answer, ans.suggestion]);
     if (!engine.done()) {
         updateQuestionUI(ans.question);
     } else {
         console.log("DONE ", suggestions);
         document.getElementById("current-question-div").style.display = "none";
         document.getElementById("suggestions-div").style.display = "flex";
-        let paragraph = document.getElementById("suggestions-paragraph");
-        for (let suggestion of suggestions) {
-            paragraph.textContent += suggestion + "\n";
+        let suggestionList = document.getElementById("suggestions-list");
+        while (suggestionList.firstChild) {
+            suggestionList.firstChild.remove()
         }
+        for (const [question, answer, suggestion] of suggestions) {
+            let htmlStr = `
+            <li class="ms-ListItem is-selectable" tabindex="0">
+                <span class="ms-ListItem-primaryText">${question}</span> 
+                <span class="ms-ListItem-secondaryText">${answer}</span> 
+                <span class="ms-ListItem-tertiaryText">${suggestion}</span> 
+                <div class="ms-ListItem-selectionTarget"></div>
+            </li>
+            `;
+
+            const fragment = document.createRange().createContextualFragment(htmlStr);
+
+            suggestionList.appendChild(fragment);
+            console.log(question, answer, suggestion);
+        }
+        suggestions = [];
     }
 }
 
@@ -163,10 +186,26 @@ function updateQuestionUI(q) {
         option.appendChild(document.createTextNode(answer));
         dropdown.appendChild(option);
     }
+
+    // ======= Office ui fabric core insanity. =======
+    // See https://itgeneralisten.wordpress.com/2017/02/14/the-office-fabric-ui-dropdown/
+    // and https://social.msdn.microsoft.com/Forums/en-US/476da803-e4f6-46af-ad38-2fb22223991e/how-do-i-reinitialize-a-office-ui-fabric-dropdown?forum=sharepointdevelopment
+    let dropdownDiv = document.getElementById("current-question-dropdown-div");
+    let child = dropdownDiv.querySelector(".ms-Dropdown-title");
+    if (child != null) {
+        dropdownDiv.removeChild(child);
+    }
+    
+    child = dropdownDiv.querySelector(".ms-Dropdown.item");
+    if (child != null) {
+        dropdownDiv.removeChild(child);
+    }
+    
+    new fabric['Dropdown'](dropdownDiv);
 }
 
 window.addEventListener("load", function(){
-    document.getElementById("current-question-next-button").onclick = nextQuestion;
+    document.getElementById("current-question-next-button").disabled = true;
     let dropdown = document.getElementById("topics-dropdown");
     dropdown.onchange = onTopicChosen;
     for (const topic of Object.values(TOPICS)) {
@@ -174,6 +213,20 @@ window.addEventListener("load", function(){
         var option = document.createElement("option");
         option.appendChild(document.createTextNode(topic.name));
         dropdown.appendChild(option);
+    }
+
+    // Required by fabric ui core dropdown docs (after dynamically adding data): https://developer.microsoft.com/en-us/fabric-js/components/dropdown/dropdown
+    var DropdownHTMLElements = document.querySelectorAll('.ms-Dropdown');
+    for (var i = 0; i < DropdownHTMLElements.length; ++i) {
+        var Dropdown = new fabric['Dropdown'](DropdownHTMLElements[i]);
+    }
+    
+    let nextButton = document.getElementById("current-question-next-button");
+    new fabric['Button'](nextButton, nextQuestion);
+
+    var ListElements = document.querySelectorAll(".ms-List");
+    for (var i = 0; i < ListElements.length; i++) {
+        new fabric['List'](ListElements[i]);
     }
 });
 

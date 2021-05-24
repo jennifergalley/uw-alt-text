@@ -16,10 +16,13 @@
     <!-- TESTING -->
     <!--<script src="src/commands/commands.js"></script> -->
     <!-- <script src="alttext.js"></script> -->
-    <script src="src/taskpane/alttext.js"></script>
+    <script src="src/taskpane/alttext.js"></script> 
 
-    <!-- For more information on Office UI Fabric, visit https://developer.microsoft.com/fabric. -->
-    <link rel="stylesheet" href="https://static2.sharepointonline.com/files/fabric/office-ui-fabric-core/9.6.1/css/fabric.min.css"/>
+    <!-- For more information on Office UI Fabric, visit https://developer.microsoft.com/fabric. 
+    <link rel="stylesheet" href="https://static2.sharepointonline.com/files/fabric/office-ui-fabric-core/9.6.1/css/fabric.min.css"/>-->
+    <link rel="stylesheet" href="https://static2.sharepointonline.com/files/fabric/office-ui-fabric-js/1.2.0/css/fabric.min.css">
+    <link rel="stylesheet" href="https://static2.sharepointonline.com/files/fabric/office-ui-fabric-js/1.2.0/css/fabric.components.min.css">
+    <script src="https://static2.sharepointonline.com/files/fabric/office-ui-fabric-js/1.2.0/js/fabric.min.js"></script>
 
     <!-- Template styles -->
     <link href="taskpane.css" rel="stylesheet" type="text/css" />
@@ -33,7 +36,7 @@
     <section id="sideload-msg" class="ms-welcome__main">
         <h2 class="ms-font-xl">Please sideload your add-in to see app body.</h2>
     </section>
-    <main id="app-body" class="ms-welcome__main" style="display: none;">
+    <main id="app-body" class="ms-welcome__main" style="display: none;"> 
     <!-- <main id="app-body" class="ms-welcome__main" > -->
 
         <div class="ms-Dropdown" tabindex="0">
@@ -42,27 +45,25 @@
             </select>
         </div>
 
-        <div id="current-question-div" class="ms-TextField"  style="display: none;">
-            <br>
+        <div id="current-question-div" class="ms-TextField" style="display: none;">
             <label id="current-question-text" class="ms-Label"></label>
             <i class="ms-Dropdown-caretDown ms-Icon ms-Icon--ChevronDown"></i>
-            <div class="ms-Dropdown" tabindex="0">
+            <div class="ms-Dropdown" id="current-question-dropdown-div" tabindex="0">
                 <select id="current-question-dropdown" class="ms-Dropdown-select">
                 </select>
             </div>
-            <div role="button" id="current-question-next-button" class="ms-welcome__action ms-Button ms-Button--hero ms-font-xl">
-                <span class="ms-Button-label">Next</span>
-            </div>
         </div>
-
-        <div id="suggestions-div" class="ms-TextField"  style="display: none;">
-            <label class="ms-Label">Suggestions</label>
-            <p id="suggestions-paragraph" class="ms-font-l"></p>
-        </div>
+        <button id="current-question-next-button" class="ms-Button ms-Button--primary" >
+            <span class="ms-Button-label">Next</span> 
+        </button>
         
         <div class="ms-TextField">
-            <p class="ms-font-l">Type the alt text and then click <b>Update Alt Text</b> to update the currently selected image.</p>
+            <p class="ms-font-l">Follow the suggestions and click <b>Update Alt Text</b>.</p>
             <br>
+            <div id="suggestions-div" style="display: none;">
+                <ul id="suggestions-list" class="ms-List">
+                </ul>
+            </div>
             <input id="curr-alt-text-input" class="ms-TextField-field" type="text" value="" placeholder="">
             <div role="button" id="update-alt-text-button" class="ms-welcome__action ms-Button ms-Button--hero ms-font-xl">
                 <span class="ms-Button-label">Update Alt Text</span>
@@ -78,7 +79,7 @@
         </div>
         <div role="button" id="hide" class="ms-welcome__action ms-Button ms-Button--hero ms-font-xl">
             <span class="ms-Button-label">Hide</span>
-        </div>
+        </div>        
     </main>
 </body>
 
