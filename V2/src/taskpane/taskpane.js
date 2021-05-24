@@ -100,4 +100,3 @@ export async function run() {
 function hide2() {
   Office.addin.hide();
 }
-

@@ -14,7 +14,9 @@
     <script type="text/javascript" src="https://appsforoffice.microsoft.com/lib/1.1/hosted/office.js"></script>
 
     <!-- TESTING -->
-    <!-- <script src="src/commands/commands.js"></script> -->
+    <!--<script src="src/commands/commands.js"></script> -->
+    <!-- <script src="alttext.js"></script> -->
+    <script src="src/taskpane/alttext.js"></script>
 
     <!-- For more information on Office UI Fabric, visit https://developer.microsoft.com/fabric. -->
     <link rel="stylesheet" href="https://static2.sharepointonline.com/files/fabric/office-ui-fabric-core/9.6.1/css/fabric.min.css"/>
@@ -32,6 +34,32 @@
         <h2 class="ms-font-xl">Please sideload your add-in to see app body.</h2>
     </section>
     <main id="app-body" class="ms-welcome__main" style="display: none;">
+    <!-- <main id="app-body" class="ms-welcome__main" > -->
+
+        <div class="ms-Dropdown" tabindex="0">
+            <select id="topics-dropdown" class="ms-Dropdown-select" onchange="onTopicChosen()">
+                <option>Choose a topic</option>
+            </select>
+        </div>
+
+        <div id="current-question-div" class="ms-TextField"  style="display: none;">
+            <br>
+            <label id="current-question-text" class="ms-Label"></label>
+            <i class="ms-Dropdown-caretDown ms-Icon ms-Icon--ChevronDown"></i>
+            <div class="ms-Dropdown" tabindex="0">
+                <select id="current-question-dropdown" class="ms-Dropdown-select">
+                </select>
+            </div>
+            <div role="button" id="current-question-next-button" class="ms-welcome__action ms-Button ms-Button--hero ms-font-xl">
+                <span class="ms-Button-label">Next</span>
+            </div>
+        </div>
+
+        <div id="suggestions-div" class="ms-TextField"  style="display: none;">
+            <label class="ms-Label">Suggestions</label>
+            <p id="suggestions-paragraph" class="ms-font-l"></p>
+        </div>
+        
         <div class="ms-TextField">
             <p class="ms-font-l">Type the alt text and then click <b>Update Alt Text</b> to update the currently selected image.</p>
             <br>
