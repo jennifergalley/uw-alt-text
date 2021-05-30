@@ -71,11 +71,11 @@ class Engine {
 let peopleTopic = new Topic("Image with people", 
     [
         new Rule(
-            "Is the people relevant to the content?",
+            "Are the people relevant to the content?",
             {
                 "no": { rule: END_RULE, suggestion: "Do not include it in the alt text." },
                 "yes": {
-                    suggestion: "Begin stating there is people in the image.",
+                    suggestion: "Begin by stating there are people in the image.",
                     rule: new Rule(
                         "Is the number of people relevant to the context?",
                         {
@@ -85,11 +85,11 @@ let peopleTopic = new Topic("Image with people",
                                 rule: new Rule(
                                     "Is the gender/race identity relevant to the content?",
                                     {
-                                        "no": { rule: END_RULE, suggestion: "Do not disclose the identitiy of the people in the image." },
+                                        "no": { rule: END_RULE, suggestion: "Do not disclose the gender/race identitiy of the people in the image." },
                                         "yes": {
-                                            suggestion: "Add the general (not indidividual) gender/race aspects which are relevant to the context",
+                                            suggestion: "Add the general (not individual) gender/race aspects which are relevant to the context.",
                                             rule: new Rule(
-                                                "Do you permission to describe the people's identity?",
+                                                "Do you have permission to describe the people's identity?",
                                                 {
                                                     "no": { rule: END_RULE, suggestion: "Do not disclose the identities of the people." },
                                                     "yes": { rule: END_RULE, suggestion: "Describe the identity of each person in a specific order." }
@@ -112,7 +112,7 @@ let decorativeTopic = new Topic("Decorative", [
         "Is this a purely decorative image without content?",
         {
             "yes": { rule: END_RULE, suggestion: "Leave an empty alt text." },
-            "no": { rule: END_RULE, suggestion: "Consider choosing another category" }
+            "no": { rule: END_RULE, suggestion: "Consider choosing another category." }
         }
     )
 ]);

@@ -37,23 +37,28 @@ Office.onReady((info) => {
   if (info.host === Office.HostType.PowerPoint || info.host === Office.HostType.Word) {
     document.getElementById("sideload-msg").style.display = "none";
     document.getElementById("app-body").style.display = "flex";
-    document.getElementById("run").onclick = run;
     document.getElementById("update-alt-text-button").onclick = updateAltText;
-    document.getElementById("action").onclick = action;
-    document.getElementById("hide").onclick = hide;
+    // document.getElementById("dialog").onclick = openDialog;
 
     Office.context.document.addHandlerAsync(Office.EventType.DocumentSelectionChanged, function(eventArgs) {
       eventArgs.document.getSelectedDataAsync(
-        Office.CoercionType.Ooxml, // coercionType
+        Office.CoercionType.Ooxml, // coercionType - only applies to Word
         function(result) {
           let altTextField = document.getElementById("curr-alt-text-input");
           altTextField.value = "";
           const [tag, xml] = getDocPr(result.value);
+
+          // If it is an image selected
           if (tag != null) {
-            let descr = tag.getAttribute("descr");
+            let descr = tag.getAttribute("descr"); // the current alt text
             let name = tag.getAttribute("name");
+
+            // If there is currently alt text
             if (descr) {
               altTextField.value = descr;
+            } else {
+              // If not, prompt the user to add it
+              openDialog();
             }
           }
         }
@@ -85,18 +90,4 @@ export async function updateAltText() {
       });
     }
   );
-}
-
-export async function run() {
-  /**
-   * Insert your PowerPoint code here
-   */
-  const options = { coercionType: Office.CoercionType.Text };
-
-  await Office.context.document.setSelectedDataAsync(" ", options);
-  await Office.context.document.setSelectedDataAsync("Hello World2!", options);
-}
-
-function hide2() {
-  Office.addin.hide();
 }

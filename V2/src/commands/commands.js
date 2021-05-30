@@ -9,28 +9,6 @@ Office.onReady(() => {
   // If needed, Office.js is ready to be called
 });
 
-var _count=0;
-
-// /**
-//  * Does a thing.
-//  * @param event {Office.AddinCommands.Event}
-//  */
-function action(event) {
-  // Your code goes here.
-  _count++;
-  // Office.addin.hide();
-
-  // Office.addin.showAsTaskpane();
-  document.getElementById("run").textContent="Go"+_count;
-
-  // Be sure to indicate when the add-in command function is complete.
-  // event.completed();
-}
-
-async function hide() {
-  await Office.addin.hide();
-}
-
 function getGlobal() {
   return typeof self !== "undefined"
     ? self
@@ -44,5 +22,4 @@ function getGlobal() {
 const g = getGlobal();
 
 // the add-in command functions need to be available in global scope
-g.action = action;
-g.hide = hide;
+// g.action = action; // where action is a function in this file
