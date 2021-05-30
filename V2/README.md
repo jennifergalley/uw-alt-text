@@ -12,7 +12,3 @@ Open it programmtically, i.e. when they insert an image - https://docs.microsoft
 
 # Word vs Powerpoint
 If you want to switch between word and powerpoint, go to package.json and edit `"app-to-debug"` to be either `"word"` or `"powerpoint"`.
-
-
-## TODO - Jenny - commands
-1. figure out how to get a command working. the last step of https://docs.microsoft.com/en-us/office/dev/add-ins/develop/configure-your-add-in-to-use-a-shared-runtime is not working for me. can I run the action command another way? or just figure out how to start running taskpane.open or whatever?
