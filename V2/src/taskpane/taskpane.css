@@ -78,3 +78,8 @@
 b {
     font-weight: bold;
 }
+
+.spinner_container {
+    display: flex;
+    justify-content: center;
+  }

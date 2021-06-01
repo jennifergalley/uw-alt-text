@@ -12,6 +12,7 @@
 
     <!-- Office JavaScript API -->
     <script type="text/javascript" src="https://appsforoffice.microsoft.com/lib/1.1/hosted/office.js"></script>
+    <script type="text/javascript" src="https://ajax.aspnetcdn.com/ajax/jQuery/jquery-2.2.1.min.js"></script>
 
     <!--<script src="src/commands/commands.js"></script> -->
     <script src="src/taskpane/alttext.js"></script> 
@@ -36,8 +37,8 @@
     <section id="sideload-msg" class="ms-welcome__main">
         <h2 class="ms-font-xl">Please sideload your add-in to see app body.</h2>
     </section>
-    <main id="app-body" class="ms-welcome__main" style="display: none;"> 
-    <!-- <main id="app-body" class="ms-welcome__main" > -->
+<!--     <main id="app-body" class="ms-welcome__main" style="display: none;">   -->
+    <main id="app-body" class="ms-welcome__main" >
 
         <div class="ms-Dropdown" tabindex="0">
             <select id="topics-dropdown" class="ms-Dropdown-select" onchange="onTopicChosen()">
@@ -58,17 +59,32 @@
         </button>
         
         <div class="ms-TextField">
-            <p class="ms-font-l">Follow the suggestions and click <b>Update Alt Text</b>.</p>
-            <br>
             <div id="suggestions-div" style="display: none;">
                 <ul id="suggestions-list" class="ms-List">
                 </ul>
             </div>
-            <input id="curr-alt-text-input" class="ms-TextField-field" type="text" value="" placeholder="">
-            <div role="button" id="update-alt-text-button" class="ms-welcome__action ms-Button ms-Button--hero ms-font-xl">
-                <span class="ms-Button-label">Update Alt Text</span>
+            <div id="update-altext-container">
+                <p class="ms-font-l">Follow the suggestions and click <b>Update Alt Text</b>.</p>
+                <br>
+                <input id="curr-alt-text-input" class="ms-TextField-field" type="text" value="" placeholder="">
+                <div id="spinner-container" class="spinner_container" style="display: none;">
+                    <div class="ms-Spinner">
+                    </div>
+                </div>
+                <div id="submit-container" class="spinner_container">
+                    <div role="button" id="update-alt-text-button" class="ms-welcome__action ms-Button ms-Button--hero ms-font-xl">
+                        <span class="ms-Button-label">Update Alt Text</span>
+                    </div>
+                </div>
             </div>
         </div>
+
+        <script>
+            var SpinnerElements = document.querySelectorAll(".ms-Spinner");
+            for (var i = 0; i < SpinnerElements.length; i++) {
+              new fabric['Spinner'](SpinnerElements[i]);
+            }
+          </script>
         <!-- Just testing -->
         <!-- <div role="button" id="dialog" class="ms-welcome__action ms-Button ms-Button--hero ms-font-xl">
             <span class="ms-Button-label">Open Dialog</span>

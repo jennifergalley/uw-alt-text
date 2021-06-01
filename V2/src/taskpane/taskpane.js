@@ -50,6 +50,7 @@ Office.onReady((info) => {
 
           // If it is an image selected
           if (tag != null) {
+            $("#update-altext-container").show();
             let descr = tag.getAttribute("descr"); // the current alt text
             let name = tag.getAttribute("name");
 
@@ -60,6 +61,8 @@ Office.onReady((info) => {
               // If not, prompt the user to add it
               openDialog();
             }
+          } else {
+            $("#update-altext-container").hide();
           }
         }
       );
@@ -68,12 +71,16 @@ Office.onReady((info) => {
 });
 
 export async function updateAltText() {
+  $("#spinner-container").show();
+  $("#submit-container").hide();
   Office.context.document.getSelectedDataAsync(
     Office.CoercionType.Ooxml, // coercionType
     function(result) {
       const [tag, xml] = getDocPr(result.value);
 
       if (tag == null) {
+        $("#spinner-container").hide();
+        $("#submit-container").show();
         console.warn("This should not be null, perhaps the select element was not an image?")
         return;
       }
@@ -84,6 +91,8 @@ export async function updateAltText() {
       Office.context.document.setSelectedDataAsync(newxml, { coercionType: Office.CoercionType.Ooxml }, function (asyncResult) {
         console.log("Done!");
         console.log(asyncResult);
+        $("#spinner-container").hide();
+        $("#submit-container").show();
         if (asyncResult.status === Office.AsyncResultStatus.Failed) {
           console.error(asyncResult.error.message);
         }
