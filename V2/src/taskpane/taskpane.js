@@ -11,6 +11,7 @@ import "../../assets/icon-80.png";
 /* global document, Office */
 
 const parser = new DOMParser();
+let VISIBILITY_MODE = null; // Will update with listener
 
 /*
 Gets docPr tag, see: https://c-rex.net/projects/samples/ooxml/e1/Part4/OOXML_P4_DOCX_docPr_topic_ID0ES32OB.html?hl=docpr
@@ -40,6 +41,10 @@ Office.onReady((info) => {
     document.getElementById("update-alt-text-button").onclick = updateAltText;
     // document.getElementById("dialog").onclick = openDialog;
 
+    Office.addin.onVisibilityModeChanged(function(message) {
+      VISIBILITY_MODE = message.visibilityMode;
+    });
+
     Office.context.document.addHandlerAsync(Office.EventType.DocumentSelectionChanged, function(eventArgs) {
       eventArgs.document.getSelectedDataAsync(
         Office.CoercionType.Ooxml, // coercionType - only applies to Word
@@ -57,7 +62,11 @@ Office.onReady((info) => {
             // If there is currently alt text
             if (descr) {
               altTextField.value = descr;
-            } else {
+            } 
+            // Initially, VISIBILITY_MODE will be null, the first time it changes
+            // it will be when the task pane is hidden, so is safe to assume it is open
+            // when VISIBILITY_MODE == null the taskpane is open.
+            else if (VISIBILITY_MODE != null && VISIBILITY_MODE != "Taskpane") {
               // If not, prompt the user to add it
               openDialog();
             }
