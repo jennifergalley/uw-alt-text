@@ -161,6 +161,7 @@ function updateQuestionUI(q) {
     new fabric['Dropdown'](dropdownDiv);
 }
 
+
 window.addEventListener("load", function(){
 
     Office.context.document.settings.set("Office.AutoShowTaskpaneWithDocument", true);

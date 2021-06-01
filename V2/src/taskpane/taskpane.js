@@ -79,9 +79,63 @@ Office.onReady((info) => {
   }
 });
 
+
+// This function should get the paragraphs and do whatever we want with them:
+// - compute similarity between current alt text and the whole doc (where to get this from???)
+// - compute similarity between current alt text and each paragraph?
+export async function updateParagraphsSimilarity() {
+  return await Word.run(async (context) => {
+    let paragraphs = context.document.body.paragraphs;
+    paragraphs.load("text");
+    await context.sync();
+
+    let paragraphsText = [];
+    paragraphs.items.forEach((item) => {
+      let paragraph = item.text.trim();
+      if (paragraph && paragraph.length > 0) {
+          paragraphsText.push(paragraph);
+      }
+    });
+
+    let body = {paragraphs: paragraphsText, alttext: document.getElementById("curr-alt-text-input").value};
+
+    await context.sync(); // TODO: is this neccesary?
+    return await fetch("http://localhost:5001/paragraph-similarity", {
+          method: 'POST',
+          headers: {'Content-Type': 'application/json', 'Access-Control-Allow-Origin':'*'},
+          body: JSON.stringify(body)
+      });
+  });
+
+}
+
 export async function updateAltText() {
   $("#spinner-container").show();
   $("#submit-container").hide();
+  
+  try {
+    updateParagraphsSimilarity().then(async function(response) {
+      if (response.ok) {
+        const data = await response.json(); // .sims is a sorted list of (similarity, paragraph)
+        console.log(data);
+        const [topScore, topParagraph] = data.sims[0]; // TODO: do something with the rest of paragraphs?
+      
+        if (topScore >= 0.9) {
+          $("#top-paragraph-label").text(`The similarity (${topScore}) of this with the following paragraph is too high. Is this redundant?: ${topParagraph}`);
+        } else if (topScore <= 0.1) {
+          $("#top-paragraph-label").text(`The max similarity (${topScore}) seems too low, is the alt text relevant to the context?`);
+        } else {
+          $("#top-paragraph-label").text(`DEBUG (delete this later) (${topScore}) => ${topParagraph}`);
+        }
+      } else {
+        $("#top-paragraph-label").hide();
+      }      
+    });
+  } catch (e) {
+    console.error(e);
+    $("#top-paragraph-label").hide();
+  }
+
   Office.context.document.getSelectedDataAsync(
     Office.CoercionType.Ooxml, // coercionType
     function(result) {
