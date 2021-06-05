@@ -163,7 +163,6 @@ function updateQuestionUI(q) {
 
 
 window.addEventListener("load", function(){
-
     Office.context.document.settings.set("Office.AutoShowTaskpaneWithDocument", true);
     Office.context.document.settings.saveAsync();
     document.getElementById("current-question-next-button").disabled = true;

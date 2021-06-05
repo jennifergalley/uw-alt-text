@@ -7,11 +7,14 @@
 import "../../assets/icon-16.png";
 import "../../assets/icon-32.png";
 import "../../assets/icon-80.png";
+import * as use from '@tensorflow-models/universal-sentence-encoder';
+
 
 /* global document, Office */
 
 const parser = new DOMParser();
 let VISIBILITY_MODE = null; // Will update with listener
+let universal_encoder = null;
 
 /*
 Gets docPr tag, see: https://c-rex.net/projects/samples/ooxml/e1/Part4/OOXML_P4_DOCX_docPr_topic_ID0ES32OB.html?hl=docpr
@@ -36,49 +39,72 @@ function getDocPr(xmlStr) {
 
 Office.onReady((info) => {
   if (info.host === Office.HostType.PowerPoint || info.host === Office.HostType.Word) {
-    document.getElementById("sideload-msg").style.display = "none";
-    document.getElementById("app-body").style.display = "flex";
-    document.getElementById("update-alt-text-button").onclick = updateAltText;
-    // document.getElementById("dialog").onclick = openDialog;
+    
+    use.load().then(model => {  
+      universal_encoder = model;
+      
+      document.getElementById("sideload-msg").style.display = "none";
+      document.getElementById("app-body").style.display = "flex";
+      document.getElementById("update-alt-text-button").onclick = updateAltText;
+      // document.getElementById("dialog").onclick = openDialog;
 
-    Office.addin.onVisibilityModeChanged(function(message) {
-      VISIBILITY_MODE = message.visibilityMode;
-    });
+      Office.addin.onVisibilityModeChanged(function(message) {
+        VISIBILITY_MODE = message.visibilityMode;
+      });
 
-    Office.context.document.addHandlerAsync(Office.EventType.DocumentSelectionChanged, function(eventArgs) {
-      eventArgs.document.getSelectedDataAsync(
-        Office.CoercionType.Ooxml, // coercionType - only applies to Word
-        function(result) {
-          let altTextField = document.getElementById("curr-alt-text-input");
-          altTextField.value = "";
-          const [tag, xml] = getDocPr(result.value);
+      Office.context.document.addHandlerAsync(Office.EventType.DocumentSelectionChanged, function(eventArgs) {
+        eventArgs.document.getSelectedDataAsync(
+          Office.CoercionType.Ooxml, // coercionType - only applies to Word
+          function(result) {
+            let altTextField = document.getElementById("curr-alt-text-input");
+            altTextField.value = "";
+            const [tag, xml] = getDocPr(result.value);
 
-          // If it is an image selected
-          if (tag != null) {
-            $("#update-altext-container").show();
-            let descr = tag.getAttribute("descr"); // the current alt text
-            let name = tag.getAttribute("name");
+            // If it is an image selected
+            if (tag != null) {
+              $("#update-altext-container").show();
+              let descr = tag.getAttribute("descr"); // the current alt text
+              let name = tag.getAttribute("name");
 
-            // If there is currently alt text
-            if (descr) {
-              altTextField.value = descr;
-            } 
-            // Initially, VISIBILITY_MODE will be null, the first time it changes
-            // it will be when the task pane is hidden, so is safe to assume it is open
-            // when VISIBILITY_MODE == null the taskpane is open.
-            else if (VISIBILITY_MODE != null && VISIBILITY_MODE != "Taskpane") {
-              // If not, prompt the user to add it
-              openDialog();
+              // If there is currently alt text
+              if (descr) {
+                altTextField.value = descr;
+              } 
+              // Initially, VISIBILITY_MODE will be null, the first time it changes
+              // it will be when the task pane is hidden, so is safe to assume it is open
+              // when VISIBILITY_MODE == null the taskpane is open.
+              else if (VISIBILITY_MODE != null && VISIBILITY_MODE != "Taskpane") {
+                // If not, prompt the user to add it
+                openDialog();
+              }
+            } else {
+              $("#update-altext-container").hide();
             }
-          } else {
-            $("#update-altext-container").hide();
           }
-        }
-      );
+        );
+      });
     });
   }
 });
 
+function dot(a, b){
+  var hasOwnProperty = Object.prototype.hasOwnProperty;
+  var sum = 0;
+  for (var key in a) {
+    if (hasOwnProperty.call(a, key) && hasOwnProperty.call(b, key)) {
+      sum += a[key] * b[key]
+    }
+  }
+  return sum
+}
+
+function similarity(a, b) {  
+  var magnitudeA = Math.sqrt(dot(a, a));  
+  var magnitudeB = Math.sqrt(dot(b, b));  
+  if (magnitudeA && magnitudeB)  
+    return dot(a, b) / (magnitudeA * magnitudeB);  
+  else return false  
+}
 
 // This function should get the paragraphs and do whatever we want with them:
 // - compute similarity between current alt text and the whole doc (where to get this from???)
@@ -97,14 +123,7 @@ export async function updateParagraphsSimilarity() {
       }
     });
 
-    let body = {paragraphs: paragraphsText, alttext: document.getElementById("curr-alt-text-input").value};
-
-    await context.sync(); // TODO: is this neccesary?
-    return await fetch("http://localhost:5001/paragraph-similarity", {
-          method: 'POST',
-          headers: {'Content-Type': 'application/json', 'Access-Control-Allow-Origin':'*'},
-          body: JSON.stringify(body)
-      });
+    return paragraphsText;
   });
 
 }
@@ -112,29 +131,7 @@ export async function updateParagraphsSimilarity() {
 export async function updateAltText() {
   $("#spinner-container").show();
   $("#submit-container").hide();
-  
-  try {
-    updateParagraphsSimilarity().then(async function(response) {
-      if (response.ok) {
-        const data = await response.json(); // .sims is a sorted list of (similarity, paragraph)
-        console.log(data);
-        const [topScore, topParagraph] = data.sims[0]; // TODO: do something with the rest of paragraphs?
-      
-        if (topScore >= 0.9) {
-          $("#top-paragraph-label").text(`The similarity (${topScore}) of this with the following paragraph is too high. Is this redundant?: ${topParagraph}`);
-        } else if (topScore <= 0.1) {
-          $("#top-paragraph-label").text(`The max similarity (${topScore}) seems too low, is the alt text relevant to the context?`);
-        } else {
-          $("#top-paragraph-label").text(`DEBUG (delete this later) (${topScore}) => ${topParagraph}`);
-        }
-      } else {
-        $("#top-paragraph-label").hide();
-      }      
-    });
-  } catch (e) {
-    console.error(e);
-    $("#top-paragraph-label").hide();
-  }
+  $("#top-paragraph-label").hide();
 
   Office.context.document.getSelectedDataAsync(
     Office.CoercionType.Ooxml, // coercionType
@@ -162,4 +159,35 @@ export async function updateAltText() {
       });
     }
   );
+
+  try {
+    let paragraphsText = await updateParagraphsSimilarity();
+    const sentences = [document.getElementById("curr-alt-text-input").value].concat(paragraphsText);  
+    universal_encoder.embed(sentences).then(async function(embeddings) {
+      let embeds = embeddings.arraySync();
+      let data = [];
+      for (let i = 1; i < embeds.length; i++) {
+        data.push([similarity(embeds[0], embeds[i]), paragraphsText[i - 1]]);
+      }
+
+      data.sort().reverse();
+      
+      console.log(data);
+      const [topScore, topParagraph] = data[0]; // TODO: do something with the rest of paragraphs?
+    
+      if (topScore >= 0.9) {
+        $("#top-paragraph-label").text(`The similarity of the alt text with the following paragraph is too high. Is the alt text redundant?: ${topParagraph}`);
+        $("#top-paragraph-label").show();
+      } else if (topScore <= 0.4) {
+        $("#top-paragraph-label").text(`The similarity between the alt text and the text context seems low. Is the alt text relevant to the context?`);
+        $("#top-paragraph-label").show();
+      } else {
+        //$("#top-paragraph-label").text(`DEBUG (delete this later) (${topScore}) => ${topParagraph}`);
+        $("#top-paragraph-label").hide();
+      }      
+    });
+  } catch (e) {
+    console.error(e);
+    $("#top-paragraph-label").hide();
+  }
 }
