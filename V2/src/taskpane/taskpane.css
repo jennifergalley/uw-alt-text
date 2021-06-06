@@ -81,3 +81,7 @@ b {
     display: flex;
     justify-content: center;
   }
+
+.wrap {
+    white-space:pre-wrap;
+}

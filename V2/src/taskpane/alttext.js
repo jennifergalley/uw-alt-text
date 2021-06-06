@@ -113,9 +113,9 @@ function nextQuestion() {
         for (const [question, answer, suggestion] of suggestions) {
             let htmlStr = `
             <li class="ms-ListItem is-selectable" tabindex="0">
-                <span class="ms-ListItem-primaryText">${question}</span> 
-                <span class="ms-ListItem-secondaryText">${answer}</span> 
-                <span class="ms-ListItem-tertiaryText">${suggestion}</span> 
+                <span class="ms-ListItem-primaryText wrap">${question}</span> 
+                <span class="ms-ListItem-secondaryText wrap">${answer}</span> 
+                <span class="ms-ListItem-tertiaryText wrap">${suggestion}</span> 
                 <div class="ms-ListItem-selectionTarget"></div>
             </li>
             `;
