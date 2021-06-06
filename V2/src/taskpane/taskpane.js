@@ -65,6 +65,9 @@ Office.onReady((info) => {
               $("#update-altext-container").show();
               let descr = tag.getAttribute("descr"); // the current alt text
               let name = tag.getAttribute("name");
+              
+              // Analysis only happens when clicking on update alt text
+              $("#top-paragraph-label").hide();
 
               // If there is currently alt text
               if (descr) {
