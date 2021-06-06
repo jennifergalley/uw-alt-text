@@ -149,6 +149,10 @@ export async function updateAltText() {
       }
 
       let inputAltText = document.getElementById("curr-alt-text-input").value;
+      if (!inputAltText.endsWith(".")) {
+        inputAltText += ".";
+        document.getElementById("curr-alt-text-input").value = inputAltText;
+      }
       tag.setAttribute("descr", inputAltText);
       let newxml = (new XMLSerializer()).serializeToString(xml);
       Office.context.document.setSelectedDataAsync(newxml, { coercionType: Office.CoercionType.Ooxml }, function (asyncResult) {
