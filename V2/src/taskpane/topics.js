@@ -50,6 +50,27 @@ const decorativeTopic = new Topic("Decorative", [
     )
 ]);
 
+const chartTopic = new Topic("Chart", [
+    new Rule(
+        "For a chart, are all of the data points important?",
+        {
+            "no": {rule: END_RULE, suggestion: "Shortly describe the key takeaway you want the reader to have."},
+            "yes": {
+                suggestion: "Consider adding a data table as well to allow table navigation.",
+                rule: new Rule(
+                    "Is their also a simple takeaway you want the reader to have?",
+                    {
+                        "no": { rule: END_RULE, suggestion: "Describe where the data can be found, only if that is not already referenced in your document." },
+                        "yes": { rule: END_RULE, suggestion: "Shortly describe the key takeaway you want the reader to have. Also reference where"+ 
+                        " the data table can be found, only if that is not already referenced in your document." }
+                    }
+                )
+            }
+        }
+    )
+]);
+
 const TOPICS = {};
 TOPICS[decorativeTopic.name] = decorativeTopic;
 TOPICS[peopleTopic.name] = peopleTopic;
+TOPICS[chartTopic.name] = chartTopic;
